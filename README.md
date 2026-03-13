@@ -68,7 +68,7 @@ The goal of this project is to create a smart desk utility
 
 ## Configuration
 
-Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/master/arduino/Properties.h)
+Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/main/platformio/src/Properties.h)
 
 The baord relied on an MQTT communication to change the RGB LED Color uisng [IotCommander](https://github.com/devlotfi/iot-commander)
 
