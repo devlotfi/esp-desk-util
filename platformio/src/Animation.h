@@ -25,9 +25,5 @@ Animation animations[] = {
         .frames = jake_bitmap_allArray,
         .frameCount = jake_bitmap_allArray_LEN,
     },
-    {
-        .frames = bmo_bitmap_allArray,
-        .frameCount = bmo_bitmap_allArray_LEN,
-    },
 };
 const uint8_t animationCount = sizeof(animations) / sizeof(animations[0]);
