@@ -24,9 +24,12 @@ The goal of this project is to create a smart desk utility
 # Tech stack
 
 <p float="left">
+  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/platformio.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/cpp.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/arduino.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/espressif.svg">
+  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/mqtt.svg">
+  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/iot-commander.svg">
 </p>
 
 ## Diagrams
@@ -61,7 +64,7 @@ The goal of this project is to create a smart desk utility
 
 ## Configuration
 
-Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/master/arduino/Properties.h)
+Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/main/platformio/src/Properties.h)
 
 The baord relied on an MQTT communication to change the RGB LED Color uisng [EspCommander](https://github.com/devlotfi/esp-commander)
 
