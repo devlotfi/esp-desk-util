@@ -56,3 +56,13 @@ void setLed(bool powerOn, const char *hexColor, const uint8_t brightness)
   strip.setBrightness(brightness);
   strip.show();
 }
+
+void setup_strip()
+{
+  preferences.begin(PREFERENCES_NAMESAPCE, false);
+  auto ledConfig = loadConfig();
+  strncpy(stripCurrentColor, ledConfig.color, sizeof(stripCurrentColor) - 1);
+  stripCurrentColor[sizeof(stripCurrentColor) - 1] = '\0';
+  stripCurrentBrightness = ledConfig.brightness;
+  setLed(ledConfig.powerOn, ledConfig.color, ledConfig.brightness);
+}

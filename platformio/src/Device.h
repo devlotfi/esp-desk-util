@@ -1,28 +1,28 @@
 #pragma once
 
-#include <IotCommander.h>
+#include <EspCommander.h>
 #include <ESP32Ping.h>
 #include "Properties.h"
 #include "Vars.h"
 #include "Led.h"
 #include "Utils.h"
 
-IotCommander::Value dht22QueryResults[] = {
-    IotCommander::Value(IotCommander::Value::Params{
+EspCommander::Value dht22QueryResults[] = {
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "temperature_C",
-        .type = IotCommander::ValueType::FLOAT,
+        .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
-    IotCommander::Value(IotCommander::Value::Params{
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "humidity_%",
-        .type = IotCommander::ValueType::FLOAT,
+        .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
 };
-auto dht22Query = IotCommander::Query(IotCommander::Query::Params{
+auto dht22Query = EspCommander::Query(EspCommander::Query::Params{
     .name = "dht22",
     .results = dht22QueryResults,
-    .handler = [](IotCommander::HandlerValue results[], etl::optional<const char *> &error)
+    .handler = [](EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
         float temperature = dht.readTemperature();
         float humidity = dht.readHumidity();
@@ -31,22 +31,22 @@ auto dht22Query = IotCommander::Query(IotCommander::Query::Params{
     },
 });
 
-IotCommander::Value bmp280QueryResults[] = {
-    IotCommander::Value(IotCommander::Value::Params{
+EspCommander::Value bmp280QueryResults[] = {
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "temperature_C",
-        .type = IotCommander::ValueType::FLOAT,
+        .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
-    IotCommander::Value(IotCommander::Value::Params{
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "pressure_HPA",
-        .type = IotCommander::ValueType::FLOAT,
+        .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
 };
-auto bmp280Query = IotCommander::Query(IotCommander::Query::Params{
+auto bmp280Query = EspCommander::Query(EspCommander::Query::Params{
     .name = "bmp280",
     .results = bmp280QueryResults,
-    .handler = [](IotCommander::HandlerValue results[], etl::optional<const char *> &error)
+    .handler = [](EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
         float temperature = bmp.readTemperature();
         float pressure = bmp.readPressure() / 100.0F;
@@ -55,29 +55,29 @@ auto bmp280Query = IotCommander::Query(IotCommander::Query::Params{
     },
 });
 
-IotCommander::Value rgbLedQueryResults[] = {
-    IotCommander::Value(IotCommander::Value::Params{
+EspCommander::Value rgbLedQueryResults[] = {
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "Power On",
-        .type = IotCommander::ValueType::BOOL,
+        .type = EspCommander::ValueType::BOOL,
         .required = true,
     }),
-    IotCommander::Value(IotCommander::Value::Params{
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "color",
-        .type = IotCommander::ValueType::COLOR,
+        .type = EspCommander::ValueType::COLOR,
         .required = true,
     }),
-    IotCommander::Value(IotCommander::Value::Params{
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "brightness",
-        .type = IotCommander::ValueType::RANGE,
+        .type = EspCommander::ValueType::RANGE,
         .required = true,
         .min = 0,
         .max = 255,
     }),
 };
-auto rgbLedQuery = IotCommander::Query(IotCommander::Query::Params{
+auto rgbLedQuery = EspCommander::Query(EspCommander::Query::Params{
     .name = "RGB Led",
     .results = rgbLedQueryResults,
-    .handler = [](IotCommander::HandlerValue results[], etl::optional<const char *> &error)
+    .handler = [](EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
         results[0] = (bool)stripPowerOn;
         results[1] = (const char *)stripCurrentColor;
@@ -85,58 +85,17 @@ auto rgbLedQuery = IotCommander::Query(IotCommander::Query::Params{
     },
 });
 
-IotCommander::Value pingPCActionResults[] = {
-    IotCommander::Value(IotCommander::Value::Params{
-        .name = "alive",
-        .type = IotCommander::ValueType::BOOL,
-        .required = true,
-    }),
-};
-auto pingPcAction = IotCommander::Action(IotCommander::Action::Params{
-    .name = "pingPC",
-    .results = pingPCActionResults,
-    .handler = [](IotCommander::HandlerValue parameters[], IotCommander::HandlerValue results[], etl::optional<const char *> &error)
-    {
-        IPAddress targetIP;
-        if (!targetIP.fromString(pc_ip))
-        {
-            error = "INVALID_IP";
-            return;
-        }
-        bool alive = Ping.ping(targetIP, 3);
-        results[0] = alive;
-    },
-});
-
-auto wakePcAction = IotCommander::Action(IotCommander::Action::Params{
-    .name = "wakePC",
-    .handler = [](IotCommander::HandlerValue parameters[], IotCommander::HandlerValue results[], etl::optional<const char *> &error)
-    {
-        uint8_t mac[6];
-        if (!parseMac(pc_mac, mac))
-        {
-            error = "INVALID_MAC";
-            return;
-        }
-        bool ok = sendWOL(mac);
-        if (!ok)
-        {
-            error = "WOL_FAILED";
-        }
-    },
-});
-
-IotCommander::Value powerRgbLedActionParameters[] = {
-    IotCommander::Value(IotCommander::Value::Params{
+EspCommander::Value powerRgbLedActionParameters[] = {
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "power",
-        .type = IotCommander::ValueType::BOOL,
+        .type = EspCommander::ValueType::BOOL,
         .required = true,
     }),
 };
-auto powerRgbLedAction = IotCommander::Action(IotCommander::Action::Params{
+auto powerRgbLedAction = EspCommander::Action(EspCommander::Action::Params{
     .name = "power RGB LED",
     .parameters = powerRgbLedActionParameters,
-    .handler = [](IotCommander::HandlerValue parameters[], IotCommander::HandlerValue results[], etl::optional<const char *> &error)
+    .handler = [](EspCommander::HandlerValue parameters[], EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
         bool powerParam = etl::get<bool>(parameters[0].value());
         LedConfig ledConfig = {};
@@ -150,24 +109,24 @@ auto powerRgbLedAction = IotCommander::Action(IotCommander::Action::Params{
     },
 });
 
-IotCommander::Value setRgbLedActionParameters[] = {
-    IotCommander::Value(IotCommander::Value::Params{
+EspCommander::Value setRgbLedActionParameters[] = {
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "color",
-        .type = IotCommander::ValueType::COLOR,
+        .type = EspCommander::ValueType::COLOR,
         .required = true,
     }),
-    IotCommander::Value(IotCommander::Value::Params{
+    EspCommander::Value(EspCommander::Value::Params{
         .name = "brightness",
-        .type = IotCommander::ValueType::RANGE,
+        .type = EspCommander::ValueType::RANGE,
         .required = true,
         .min = 0,
         .max = 255,
     }),
 };
-auto setRgbLedAction = IotCommander::Action(IotCommander::Action::Params{
+auto setRgbLedAction = EspCommander::Action(EspCommander::Action::Params{
     .name = "set RGB LED",
     .parameters = setRgbLedActionParameters,
-    .handler = [](IotCommander::HandlerValue parameters[], IotCommander::HandlerValue results[], etl::optional<const char *> &error)
+    .handler = [](EspCommander::HandlerValue parameters[], EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
         const char *colorParam = etl::get<const char *>(parameters[0].value());
         int brightnessParam = etl::get<int>(parameters[1].value());
@@ -190,23 +149,21 @@ auto setRgbLedAction = IotCommander::Action(IotCommander::Action::Params{
     },
 });
 
-static uint8_t requestBuffer[IOTC_JSON_BUFFER_SIZE];
-static uint8_t responseBuffer[IOTC_JSON_BUFFER_SIZE];
-IotCommander::StaticBufferAllocator requestAllocator(requestBuffer, sizeof(requestBuffer));
-IotCommander::StaticBufferAllocator responseAllocator(responseBuffer, sizeof(responseBuffer));
+static uint8_t requestBuffer[ESP_COMMANDER_JSON_BUFFER_SIZE];
+static uint8_t responseBuffer[ESP_COMMANDER_JSON_BUFFER_SIZE];
+EspCommander::StaticBufferAllocator requestAllocator(requestBuffer, sizeof(requestBuffer));
+EspCommander::StaticBufferAllocator responseAllocator(responseBuffer, sizeof(responseBuffer));
 
-IotCommander::Query queries[] = {
+EspCommander::Query queries[] = {
     dht22Query,
     bmp280Query,
     rgbLedQuery,
 };
-IotCommander::Action actions[] = {
-    pingPcAction,
-    wakePcAction,
+EspCommander::Action actions[] = {
     powerRgbLedAction,
     setRgbLedAction,
 };
-auto device = IotCommander::Device(IotCommander::Device::Params{
+auto device = EspCommander::Device(EspCommander::Device::Params{
     .id = device_id,
     .name = device_name,
     .requestTopic = mqtt_request_topic,

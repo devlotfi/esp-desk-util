@@ -1,99 +1,70 @@
 
 #include <Arduino.h>
-#include <IotCommander.h>
+#include <EspCommander.h>
+#include <esp_now.h>
+#include <esp_wifi.h>
 #include "Properties.h"
 #include "Vars.h"
 #include "Device.h"
-#include "Animation.h"
+#include "Led.h"
+#include "Screen.h"
 
-static char output[IOTC_JSON_BUFFER_SIZE];
-static char input[IOTC_JSON_BUFFER_SIZE];
-void callback(char *topic, byte *payload, unsigned int length)
+void onSent(const esp_now_send_info_t *tx_info, esp_now_send_status_t status)
 {
-  if (length >= IOTC_JSON_BUFFER_SIZE)
+  Serial.print("ESP-NOW: Send status -> ");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+}
+
+static char output[ESP_COMMANDER_JSON_BUFFER_SIZE];
+static char input[ESP_COMMANDER_JSON_BUFFER_SIZE];
+void onReceive(const esp_now_recv_info_t *info, const uint8_t *data, int len)
+{
+  if (!data || len != sizeof(EspNowMqttGateway::EspNowMessage))
   {
-    Serial.println("Payload too large!");
+    Serial.println("ESP-NOW: Invalid frame size");
     return;
   }
-  memcpy(input, payload, length);
-  input[length] = '\0';
 
-  Serial.println(topic);
-  Serial.println(input);
-  if (strcmp(mqtt_discovery_request_topic, topic) == 0)
+  const EspNowMqttGateway::EspNowMessage *msg = reinterpret_cast<const EspNowMqttGateway::EspNowMessage *>(data);
+
+  switch (msg->type)
   {
-    Serial.println("Discovery called");
-    device.discovery(output, IOTC_JSON_BUFFER_SIZE);
-    client.publish(mqtt_discovery_response_topic, output);
-  }
-  else if (strcmp(mqtt_request_topic, topic) == 0)
+  case EspNowMqttGateway::MessageType::TEXT_MESSAGE:
   {
-    Serial.println("Request called");
-    device.request(input, output, IOTC_JSON_BUFFER_SIZE);
-    Serial.println("Request result: ");
-    Serial.println(output);
-    client.publish(mqtt_response_topic, output);
-  }
-}
+    char safeTopic[ESP_NOW_MQTT_GATEWAY_TOPIC_SIZE];
+    memcpy(safeTopic, msg->payload.mqttEspNowMessage.topic, ESP_NOW_MQTT_GATEWAY_TOPIC_SIZE - 1);
+    safeTopic[ESP_NOW_MQTT_GATEWAY_TOPIC_SIZE - 1] = '\0';
 
-void setup_wifi()
-{
-  Serial.println();
-  Serial.printf("Connecting to WiFi: %s\n", ssid);
+    memcpy(input, msg->payload.mqttEspNowMessage.text, ESP_COMMANDER_JSON_BUFFER_SIZE);
+    input[ESP_COMMANDER_JSON_BUFFER_SIZE - 1] = '\0';
 
-  WiFi.mode(WIFI_STA);
-  WiFi.setSleep(false);
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
+    Serial.println("------------------------------------------");
+    Serial.printf("Data Length: %d\n", len);
+    Serial.printf("Topic: %s\n", safeTopic);
+    Serial.printf("Text: %s\n", msg->payload.mqttEspNowMessage.text);
+    Serial.println("------------------------------------------\n");
 
-  WiFi.begin(ssid, password);
-
-  unsigned long start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 15000)
-  {
-    Serial.print(".");
-    delay(500);
-  }
-
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.println("\nWiFi Failed");
-    ESP.restart();
-  }
-
-  Serial.println("\nWiFi connected!");
-  Serial.print("IP: ");
-  Serial.println(WiFi.localIP());
-}
-
-void reconnectMQTT()
-{
-  while (!client.connected())
-  {
-    Serial.print("Connecting to MQTT...");
-    if (client.connect(device_id, mqtt_user, mqtt_password))
+    if (strcmp(mqtt_discovery_request_topic, safeTopic) == 0)
     {
-      Serial.println(" connected!");
-      client.subscribe(mqtt_discovery_request_topic);
-      client.subscribe(mqtt_request_topic);
+      Serial.println("Discovery called");
+      device.discovery(output, ESP_COMMANDER_JSON_BUFFER_SIZE);
+      peer.mqttMessage(mqtt_discovery_response_topic, output);
     }
-    else
+    else if (strcmp(mqtt_request_topic, safeTopic) == 0)
     {
-      Serial.print(" failed, rc=");
-      Serial.println(client.state());
-      delay(3000);
+      Serial.println("Request called");
+      device.request(input, output, ESP_COMMANDER_JSON_BUFFER_SIZE);
+      Serial.println("Request result: ");
+      Serial.println(output);
+      peer.mqttMessage(mqtt_response_topic, output);
     }
-  }
-}
 
-void setup_strip()
-{
-  preferences.begin(PREFERENCES_NAMESAPCE, false);
-  auto ledConfig = loadConfig();
-  strncpy(stripCurrentColor, ledConfig.color, sizeof(stripCurrentColor) - 1);
-  stripCurrentColor[sizeof(stripCurrentColor) - 1] = '\0';
-  stripCurrentBrightness = ledConfig.brightness;
-  setLed(ledConfig.powerOn, ledConfig.color, ledConfig.brightness);
+    break;
+  }
+
+  default:
+    Serial.printf("ESP-NOW: Unknown type %d\n", msg->type);
+  }
 }
 
 void setup_sensors()
@@ -112,93 +83,6 @@ void setup_sensors()
   Serial.println("Sensors done");
 }
 
-void setup_oled()
-{
-  Serial.println("OLED init");
-  if (!display.begin(0x3C, true))
-  {
-    Serial.println("SH1106 not found");
-    while (1)
-      ;
-  }
-  display.clearDisplay();
-  display.setTextColor(SH110X_WHITE);
-  display.setContrast(50);
-  display.setTextSize(1);
-  const char *message = "Initializing...";
-  int16_t x1, y1;
-  uint16_t w, h;
-  display.getTextBounds(message, 0, 0, &x1, &y1, &w, &h);
-  int xPos = (SCREEN_WIDTH - w) / 2;
-  int yPos = (SCREEN_HEIGHT - h) / 2;
-  display.setCursor(xPos, yPos);
-  display.print(message);
-  display.display();
-  Serial.println("OLED done");
-}
-
-void hande_animation()
-{
-  unsigned long now = millis();
-  Animation &anim = animations[currentAnimationIndex];
-  if (now - animationStartTime >= animationDuration)
-  {
-    currentAnimationIndex++;
-    if (currentAnimationIndex >= animationCount)
-      currentAnimationIndex = 0;
-    currentFrame = 0;
-    animationStartTime = now;
-  }
-  if (now - lastFrameTime >= frameInterval)
-  {
-    lastFrameTime = now;
-    display.clearDisplay();
-    display.drawBitmap(
-        0, 0,
-        anim.frames[currentFrame],
-        128, 64,
-        SH110X_WHITE);
-
-    display.display();
-    currentFrame++;
-    if (currentFrame >= anim.frameCount)
-      currentFrame = 0;
-  }
-}
-
-void show_info_screen()
-{
-  display.clearDisplay();
-
-  display.setTextSize(1);
-  display.setCursor(0, 0);
-  display.println("Desk Sensor");
-
-  display.drawLine(0, 10, 128, 10, SH110X_WHITE);
-
-  display.setCursor(0, 16);
-  display.print("Temp(DHT): ");
-  display.print(storedTempDHT, 1);
-  display.println("C");
-
-  display.setCursor(0, 28);
-  display.print("Humidity: ");
-  display.print(storedHumidity, 0);
-  display.println("%");
-
-  display.setCursor(0, 40);
-  display.print("Temp(BMP): ");
-  display.print(storedTempBMP, 1);
-  display.println("C");
-
-  display.setCursor(0, 52);
-  display.print("Pressure: ");
-  display.print(storedPressure, 0);
-  display.println("hPa");
-
-  display.display();
-}
-
 void setup()
 {
   Serial.begin(115200);
@@ -208,27 +92,23 @@ void setup()
   setup_strip();
   setup_oled();
   setup_sensors();
-  setup_wifi();
-  espClient.setCACert(rootCA);
-  client.setBufferSize(IOTC_JSON_BUFFER_SIZE);
-  client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
-  udp.begin(WOL_PORT);
+  // udp.begin(WOL_PORT);
+
+  EspNowMqttGateway::PeerConfig peerConfig{
+      .pmk = pmk,
+      .lmk = lmk,
+      .gatewayMac = gatewayMac,
+      .peerMac = peerMac,
+      .channel = channel,
+  };
+  peer.init(peerConfig);
+
+  esp_now_register_recv_cb(onReceive);
+  esp_now_register_send_cb(onSent);
 }
 
 void loop()
 {
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.println("WiFi disconnected! Reconnecting...");
-    setup_wifi();
-  }
-
-  if (!client.connected())
-    reconnectMQTT();
-
-  client.loop();
-
   // Detect touch
   bool currentTouch = digitalRead(TOUCH_PIN);
   if (currentTouch && !lastTouchState)

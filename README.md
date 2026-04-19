@@ -6,8 +6,6 @@ The goal of this project is to create a smart desk utility
 
 ## Features
 
-- Turn on PC remotely using WOL
-- PC Status using ping
 - DHT11 Temperature / Humidity
 - BMP280 Temperature / Pressure
 - Display multiple standby animations on OLED
@@ -57,17 +55,15 @@ The goal of this project is to create a smart desk utility
 - Embedded Template Library ETL
 - DHT sensor library
 - Adafruit BMP280 Library
-- ESP32Ping
 - Adafruit SH110X
 - Adafruit NeoPixel
-- PubSubClient
-- [IotCommander](https://github.com/devlotfi/iot-commander)
+- [EspCommander](https://github.com/devlotfi/esp-commander)
 
 ## Configuration
 
 Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/master/arduino/Properties.h)
 
-The baord relied on an MQTT communication to change the RGB LED Color uisng [IotCommander](https://github.com/devlotfi/iot-commander)
+The baord relied on an MQTT communication to change the RGB LED Color uisng [EspCommander](https://github.com/devlotfi/esp-commander)
 
 ## Images
 

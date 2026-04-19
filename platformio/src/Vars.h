@@ -7,11 +7,10 @@
 #include <Adafruit_SH110X.h>
 #include <DHT.h>
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
 #include <WiFiUdp.h>
-#include <PubSubClient.h>
 #include <Adafruit_NeoPixel.h>
 #include <Preferences.h>
+#include <EspNowMqttGateway.h>
 #include "Properties.h"
 
 TwoWire I2C_OLED = TwoWire(1);
@@ -20,10 +19,8 @@ Adafruit_BMP280 bmp;
 Adafruit_SH1106G display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C_OLED, -1);
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 Preferences preferences;
-
+EspNowMqttGateway::Peer peer;
 WiFiUDP udp;
-WiFiClientSecure espClient;
-PubSubClient client(espClient);
 
 bool stripPowerOn = false;
 char stripCurrentColor[8] = "#ffffff";
