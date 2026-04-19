@@ -29,7 +29,8 @@ The goal of this project is to create a smart desk utility
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/arduino.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/espressif.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/mqtt.svg">
-  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/iot-commander.svg">
+  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/esp-commander.svg">
+  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/esp-now-mqtt-gateway.svg">
 </p>
 
 ## Diagrams
