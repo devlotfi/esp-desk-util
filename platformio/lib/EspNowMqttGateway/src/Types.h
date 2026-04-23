@@ -7,7 +7,8 @@ namespace EspNowMqttGateway
   enum MessageType
   {
     TEXT_MESSAGE = 1,
-    NOTIFICATION_MESSAGE = 2
+    NOTIFICATION_MESSAGE = 2,
+    TIME_SYNC_MESSAGE = 3
   };
 
   struct __attribute__((packed)) MqttEspNowMessage
@@ -22,6 +23,11 @@ namespace EspNowMqttGateway
     char body[ESP_NOW_MQTT_GATEWAY_NOTIFICATION_BODY_SIZE];
   };
 
+  struct __attribute__((packed)) TimeSyncEspNowMessage
+  {
+    uint32_t epoch;
+  };
+
   struct __attribute__((packed)) EspNowMessage
   {
     MessageType type;
@@ -29,6 +35,7 @@ namespace EspNowMqttGateway
     {
       MqttEspNowMessage mqttEspNowMessage;
       NotificationEspNowMessage notificationEspNowMessage;
+      TimeSyncEspNowMessage timeSyncEspNowMessage;
     } payload;
   };
 }
