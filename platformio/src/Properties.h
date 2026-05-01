@@ -13,16 +13,11 @@
 #define TOUCH_PIN 21
 
 // ----------------------
-// DHT22
-// ----------------------
-#define DHTPIN 13
-#define DHTTYPE DHT22
-
-// ----------------------
 // BMP280
 // ----------------------
-#define BMP_SDA 18
-#define BMP_SCL 19
+#define ALTITUDE 190
+#define BME_SDA 18
+#define BME_SCL 19
 
 // ----------------------
 // LED STRIP
@@ -38,12 +33,6 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
-
-// ----------------------
-// Pc info
-// ----------------------
-const char *pc_mac = "30:9C:23:7E:15:A0";
-const char *pc_ip = "192.168.1.88";
 
 // ----------------------
 // ESP-NOW MQTT Gateway config
@@ -67,8 +56,3 @@ const char *mqtt_response_topic = "esp-commander/esp-desk-util/response";
 // ----------------------
 const char *device_id = "c677dae7-fafe-4ee6-892c-841779e6a0bf";
 const char *device_name = "DESK_UTIL";
-
-// ----------------------
-// UDP for WOL
-// ----------------------
-const int WOL_PORT = 9;

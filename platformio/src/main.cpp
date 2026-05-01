@@ -31,12 +31,11 @@ void onReceive(const char *topic, const char *text)
 void setup_sensors()
 {
   Serial.println("Sensors init");
-  dht.begin();
-  if (!bmp.begin(0x76))
+  if (!bme.begin(0x76))
   {
-    if (!bmp.begin(0x77))
+    if (!bme.begin(0x77))
     {
-      Serial.println("BMP280 not found! Check wiring/address.");
+      Serial.println("BME280 not found! Check wiring/address.");
       while (1)
         ;
     }
@@ -48,7 +47,7 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(TOUCH_PIN, INPUT);
-  Wire.begin(BMP_SDA, BMP_SCL);
+  Wire.begin(BME_SDA, BME_SCL);
   I2C_OLED.begin(OLED_SDA, OLED_SCL, 400000);
   setup_strip();
   setup_oled();
@@ -72,10 +71,10 @@ void loop()
   if (currentTouch && !lastTouchState)
   {
     // Read sensors ONCE
-    storedTempDHT = dht.readTemperature();
-    storedHumidity = dht.readHumidity();
-    storedTempBMP = bmp.readTemperature();
-    storedPressure = bmp.readPressure() / 100.0F;
+    storedTemperature = bme.readTemperature();
+    storedHumidity = bme.readHumidity();
+    storedPressure = bme.readPressure() / 100.0F;
+    storedQNH = bme.seaLevelForAltitude(ALTITUDE, storedPressure);
     showInfoScreen = true;
     infoStartTime = millis();
   }

@@ -5,9 +5,8 @@
 #include "Properties.h"
 #include "Vars.h"
 #include "Led.h"
-#include "Utils.h"
 
-EspCommander::Value dht22QueryResults[] = {
+EspCommander::Value bme280QueryResults[] = {
     EspCommander::Value(EspCommander::Value::Params{
         .name = "temperature_C",
         .type = EspCommander::ValueType::FLOAT,
@@ -18,40 +17,30 @@ EspCommander::Value dht22QueryResults[] = {
         .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
-};
-auto dht22Query = EspCommander::Query(EspCommander::Query::Params{
-    .name = "dht22",
-    .results = dht22QueryResults,
-    .handler = [](EspCommander::HandlerValue results[], etl::optional<const char *> &error)
-    {
-        float temperature = dht.readTemperature();
-        float humidity = dht.readHumidity();
-        results[0] = temperature;
-        results[1] = humidity;
-    },
-});
-
-EspCommander::Value bmp280QueryResults[] = {
-    EspCommander::Value(EspCommander::Value::Params{
-        .name = "temperature_C",
-        .type = EspCommander::ValueType::FLOAT,
-        .required = true,
-    }),
     EspCommander::Value(EspCommander::Value::Params{
         .name = "pressure_HPA",
         .type = EspCommander::ValueType::FLOAT,
         .required = true,
     }),
+    EspCommander::Value(EspCommander::Value::Params{
+        .name = "QNH",
+        .type = EspCommander::ValueType::FLOAT,
+        .required = true,
+    }),
 };
-auto bmp280Query = EspCommander::Query(EspCommander::Query::Params{
-    .name = "bmp280",
-    .results = bmp280QueryResults,
+auto bme280Query = EspCommander::Query(EspCommander::Query::Params{
+    .name = "bme280",
+    .results = bme280QueryResults,
     .handler = [](EspCommander::HandlerValue results[], etl::optional<const char *> &error)
     {
-        float temperature = bmp.readTemperature();
-        float pressure = bmp.readPressure() / 100.0F;
+        float temperature = bme.readTemperature();
+        float humidity = bme.readHumidity();
+        float pressure = bme.readPressure() / 100.0F;
+        float qnh = bme.seaLevelForAltitude(ALTITUDE, pressure);
         results[0] = temperature;
-        results[1] = pressure;
+        results[1] = humidity;
+        results[2] = pressure;
+        results[3] = qnh;
     },
 });
 
@@ -155,8 +144,7 @@ EspCommander::StaticBufferAllocator requestAllocator(requestBuffer, sizeof(reque
 EspCommander::StaticBufferAllocator responseAllocator(responseBuffer, sizeof(responseBuffer));
 
 EspCommander::Query queries[] = {
-    dht22Query,
-    bmp280Query,
+    bme280Query,
     rgbLedQuery,
 };
 EspCommander::Action actions[] = {

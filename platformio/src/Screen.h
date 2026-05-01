@@ -94,8 +94,8 @@ void show_info_screen()
   display.drawLine(0, 10, 128, 10, SH110X_WHITE);
 
   display.setCursor(0, 16);
-  display.print("Temp(DHT): ");
-  display.print(storedTempDHT, 1);
+  display.print("Temperature: ");
+  display.print(storedTemperature, 1);
   display.println("C");
 
   display.setCursor(0, 28);
@@ -104,13 +104,13 @@ void show_info_screen()
   display.println("%");
 
   display.setCursor(0, 40);
-  display.print("Temp(BMP): ");
-  display.print(storedTempBMP, 1);
-  display.println("C");
+  display.print("Pressure: ");
+  display.print(storedPressure, 1);
+  display.println("hPa");
 
   display.setCursor(0, 52);
-  display.print("Pressure: ");
-  display.print(storedPressure, 0);
+  display.print("QNH: ");
+  display.print(storedQNH, 0);
   display.println("hPa");
 
   display.display();

@@ -2,10 +2,9 @@
 
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BMP280.h>
+#include <Adafruit_BME280.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
-#include <DHT.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <Adafruit_NeoPixel.h>
@@ -14,8 +13,7 @@
 #include "Properties.h"
 
 TwoWire I2C_OLED = TwoWire(1);
-DHT dht(DHTPIN, DHTTYPE);
-Adafruit_BMP280 bmp;
+Adafruit_BME280 bme;
 Adafruit_SH1106G display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C_OLED, -1);
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 Preferences preferences;
@@ -30,10 +28,10 @@ bool showInfoScreen = false;
 bool lastTouchState = false;
 unsigned long infoStartTime = 0;
 const unsigned long infoDuration = 10000;
-float storedTempDHT = 0;
+float storedTemperature = 0;
 float storedHumidity = 0;
-float storedTempBMP = 0;
 float storedPressure = 0;
+float storedQNH = 0;
 
 uint8_t currentAnimationIndex = 0;
 uint16_t currentFrame = 0;
