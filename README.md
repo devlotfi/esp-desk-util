@@ -44,8 +44,7 @@ The goal of this project is to create a smart desk utility
 ## Components
 
 - ESP32 (38 Pin)
-- DHT22
-- BMP280
+- BME280
 - TTP223
 - OLED Screen (1.3 Inch, SH1106 Driver)
 - Cables
