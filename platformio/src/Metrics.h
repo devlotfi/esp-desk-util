@@ -71,6 +71,6 @@ void metricsTask(void *pvParameters)
 
     EspNowMqttGateway::Peer::metricMessage(metricJsonBuffer);
 
-    vTaskDelay(pdMS_TO_TICKS(1 * 60 * 1000));
+    vTaskDelay(pdMS_TO_TICKS(10 * 60 * 1000));
   }
 }
