@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EspCommander.h>
-#include <ESP32Ping.h>
 #include "Properties.h"
 #include "Vars.h"
 #include "Led.h"
@@ -90,8 +89,7 @@ auto powerRgbLedAction = EspCommander::Action(EspCommander::Action::Params{
         LedConfig ledConfig = {};
         ledConfig.powerOn = powerParam;
         ledConfig.brightness = stripCurrentBrightness;
-        strncpy(ledConfig.color, stripCurrentColor, sizeof(ledConfig.color) - 1);
-        ledConfig.color[sizeof(ledConfig.color) - 1] = '\0';
+        strlcpy(ledConfig.color, stripCurrentColor, sizeof(ledConfig.color));
         stripPowerOn = powerParam;
         saveConfig(ledConfig);
         setLed(powerParam, stripCurrentColor, (uint8_t)stripCurrentBrightness);
@@ -120,8 +118,7 @@ auto setRgbLedAction = EspCommander::Action(EspCommander::Action::Params{
         const char *colorParam = etl::get<const char *>(parameters[0].value());
         int brightnessParam = etl::get<int>(parameters[1].value());
 
-        strncpy(stripCurrentColor, colorParam, sizeof(stripCurrentColor) - 1);
-        stripCurrentColor[sizeof(stripCurrentColor) - 1] = '\0';
+        strlcpy(stripCurrentColor, colorParam, sizeof(stripCurrentColor));
         stripCurrentBrightness = brightnessParam;
         stripPowerOn = true;
 
@@ -131,10 +128,17 @@ auto setRgbLedAction = EspCommander::Action(EspCommander::Action::Params{
         LedConfig ledConfig = {};
         ledConfig.powerOn = true;
         ledConfig.brightness = stripCurrentBrightness;
-        strncpy(ledConfig.color, stripCurrentColor, sizeof(ledConfig.color) - 1);
-        ledConfig.color[sizeof(ledConfig.color) - 1] = '\0';
+        strlcpy(ledConfig.color, stripCurrentColor, sizeof(ledConfig.color));
         saveConfig(ledConfig);
         setLed(true, colorParam, (uint8_t)stripCurrentBrightness);
+    },
+});
+
+auto wakePcAction = EspCommander::Action(EspCommander::Action::Params{
+    .name = "wake PC",
+    .handler = [](EspCommander::HandlerValue parameters[], EspCommander::HandlerValue results[], etl::optional<const char *> &error)
+    {
+        EspNowMqttGateway::Peer::wolMessage(WOL_PORT, pcMac);
     },
 });
 
@@ -150,6 +154,7 @@ EspCommander::Query queries[] = {
 EspCommander::Action actions[] = {
     powerRgbLedAction,
     setRgbLedAction,
+    wakePcAction,
 };
 auto device = EspCommander::Device(EspCommander::Device::Params{
     .id = device_id,

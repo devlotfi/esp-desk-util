@@ -8,6 +8,12 @@
 #define PREFERENCES_NAMESAPCE "LED"
 
 // ----------------------
+// PC MAC
+// ----------------------
+#define WOL_PORT 9
+const uint8_t pcMac[6] = {0x30, 0x9C, 0x23, 0x7E, 0x15, 0xA0};
+
+// ----------------------
 // Touch module
 // ----------------------
 #define TOUCH_PIN 21

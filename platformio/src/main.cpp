@@ -8,6 +8,7 @@
 #include "Device.h"
 #include "Led.h"
 #include "Screen.h"
+#include "Metrics.h"
 
 static char output[ESP_NOW_MQTT_GATEWAY_MQTT_MESSAGE_TEXT_PAYLOAD_SIZE];
 void onReceive(const char *topic, const char *text)
@@ -43,6 +44,17 @@ void setup_sensors()
   Serial.println("Sensors done");
 }
 
+void setup_metrics()
+{
+  xTaskCreate(
+      metricsTask,
+      "metrics_task",
+      4096, // Stack size
+      NULL,
+      5, // Priority
+      NULL);
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -52,6 +64,7 @@ void setup()
   setup_strip();
   setup_oled();
   setup_sensors();
+  setup_metrics();
 
   EspNowMqttGateway::PeerConfig peerConfig{
       .pmk = pmk,
@@ -66,6 +79,7 @@ void setup()
 
 void loop()
 {
+  EspNowMqttGateway::Peer::timeSync();
   // Detect touch
   bool currentTouch = digitalRead(TOUCH_PIN);
   if (currentTouch && !lastTouchState)
