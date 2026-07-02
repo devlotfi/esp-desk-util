@@ -11,6 +11,7 @@ The goal of this project is to create a smart desk utility
 - Display multiple standby animations on OLED
 - Display sensor information on OLED on touch
 - Control ARGB LED strip color
+- Turn on PC using Wake-On-Lan
 
 # 📌 Contents
 
