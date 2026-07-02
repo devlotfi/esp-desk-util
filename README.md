@@ -62,12 +62,11 @@ The goal of this project is to create a smart desk utility
 - Adafruit SH110X
 - Adafruit NeoPixel
 - [EspCommander](https://github.com/devlotfi/esp-commander)
+- [EspNowMqttGateway](https://github.com/devlotfi/esp-now-mqtt-gateway)
 
 ## Configuration
 
 Change settings in [Properties.h](https://github.com/devlotfi/esp-desk-util/blob/main/platformio/src/Properties.h)
-
-The baord relied on an MQTT communication to change the RGB LED Color uisng [EspCommander](https://github.com/devlotfi/esp-commander)
 
 ## Images
 
