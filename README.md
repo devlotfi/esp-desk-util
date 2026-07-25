@@ -25,7 +25,6 @@ The goal of this project is to create a smart desk utility
 # Tech stack
 
 <p float="left">
-  <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/platformio.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/cpp.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/arduino.svg">
   <img height="50px" src="https://devlotfi.github.io/stack-icons/icons/espressif.svg">
